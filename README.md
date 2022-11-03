@@ -1,3 +1,21 @@
+Home Page: 
+ - Show recently listed NFTs
+    1. If you own the NFT, you can update the listing
+    2. If not, you can buy it
+
+Sell Page:
+ - You can list an NFT in the marketplace
+    
+
+
+
+
+
+
+
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
