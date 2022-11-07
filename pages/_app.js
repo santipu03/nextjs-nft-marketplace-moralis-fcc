@@ -16,7 +16,6 @@ function MyApp({ Component, pageProps }) {
                 <meta name="description" content="NFT Marketplace" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            {console.log(`vergas en ${APP_ID}`)}
             <MoralisProvider initializeOnMount={false}>
                 <Header />
                 <Component {...pageProps} />
