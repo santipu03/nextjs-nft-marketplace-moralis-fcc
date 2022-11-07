@@ -1,5 +1,3 @@
-import Image from "next/image"
-import styles from "../styles/Home.module.css"
 import { useMoralis, useMoralisQuery } from "react-moralis"
 import NFTBox from "../components/NFTBox"
 
@@ -15,16 +13,15 @@ export default function Home() {
         <div className="container mx-auto">
             <h1 className="py-4 px-4 font-bold text-2xl">Recently listed</h1>
             <div className="flex flex-wrap">
-                isWeb3Enabled ? (
-                {fetchingLIstedNfts ? (
-                    <div>Loading...</div>
-                ) : (
-                    listedNfts.map((nft) => {
-                        console.log(nft.attributes)
-                        const { price, nftAddress, tokenId, marketplaceAddress, seller } =
-                            nft.attributes
-                        return (
-                            <div>
+                {isWeb3Enabled ? (
+                    fetchingLIstedNfts ? (
+                        <div>Loading...</div>
+                    ) : (
+                        listedNfts.map((nft) => {
+                            console.log(nft.attributes)
+                            const { price, nftAddress, tokenId, marketplaceAddress, seller } =
+                                nft.attributes
+                            return (
                                 <NFTBox
                                     price={price}
                                     nftAddress={nftAddress}
@@ -33,11 +30,12 @@ export default function Home() {
                                     seller={seller}
                                     key={`${nftAddress}${tokenId}`}
                                 />
-                            </div>
-                        )
-                    })
+                            )
+                        })
+                    )
+                ) : (
+                    <div>Web3 Currently Not Enabled</div>
                 )}
-                ) : <div>Web3 Currently Not Enabled</div>
             </div>
         </div>
     )
