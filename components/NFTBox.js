@@ -5,6 +5,7 @@ import nftAbi from "../constants/BasicNft.json"
 import Image from "next/image"
 import { ethers } from "ethers"
 import { Card } from "web3uikit"
+import UpdateListingModal from "./UpdateListingModal"
 
 const truncateString = (fullStr, strLength) => {
     if (fullStr.length <= strLength) return fullStr
@@ -22,10 +23,12 @@ const truncateString = (fullStr, strLength) => {
 }
 
 export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress, seller }) {
+    const { isWeb3Enabled, account } = useMoralis
+
     const [imageURI, setImageURI] = useState("")
     const [tokenName, setTokenName] = useState("")
     const [tokenDescription, setTokenDescription] = useState("")
-    const { isWeb3Enabled, account } = useMoralis
+    const [showModal, setShowModal] = useState(false)
 
     const { runContractFunction: getTokenURI } = useWeb3Contract({
         abi: nftAbi,
@@ -56,6 +59,10 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
         }
     }, [isWeb3Enabled])
 
+    const handleCardClick = () => {
+        isOwnedByUser ? setShowModal(true) : console.log("Lets buy")
+    }
+
     const isOwnedByUser = seller === account || seller === undefined
     const formattedSellerAddress = isOwnedByUser ? "you" : truncateString(seller || "", 15)
 
@@ -63,25 +70,32 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
         <div>
             <div>
                 {imageURI ? (
-                    <Card title={tokenName} description={tokenDescription}>
-                        <div className="p-2">
-                            <div className="flex flex-col items-end gap-2">
-                                <div>#{tokenId}</div>
-                                <div className="italic text-sm">
-                                    Owned by {formattedSellerAddress}
-                                </div>
-                                <Image
-                                    loader={() => imageURI}
-                                    src={imageURI}
-                                    height="200"
-                                    width="200"
-                                ></Image>
-                                <div className="font-bold">
-                                    {ethers.utils.formatUnits(price, "ether")} ETH
+                    <div>
+                        <UpdateListingModal isVisible={showModal} />
+                        <Card
+                            title={tokenName}
+                            description={tokenDescription}
+                            onClick={handleCardClick}
+                        >
+                            <div className="p-2">
+                                <div className="flex flex-col items-end gap-2">
+                                    <div>#{tokenId}</div>
+                                    <div className="italic text-sm">
+                                        Owned by {formattedSellerAddress}
+                                    </div>
+                                    <Image
+                                        loader={() => imageURI}
+                                        src={imageURI}
+                                        height="200"
+                                        width="200"
+                                    ></Image>
+                                    <div className="font-bold">
+                                        {ethers.utils.formatUnits(price, "ether")} ETH
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Card>
+                        </Card>
+                    </div>
                 ) : (
                     <div>Loading...</div>
                 )}
