@@ -1,5 +1,3 @@
-import Head from "next/head"
-import Image from "next/image"
 import styles from "../styles/Home.module.css"
 import { Form, useNotification } from "web3uikit"
 import { ethers } from "ethers"
@@ -7,12 +5,14 @@ import nftAbi from "../constants/BasicNft.json"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import networkMapping from "../constants/networkMapping.json"
 import { useMoralis, useWeb3Contract } from "react-moralis"
+import { useState } from "react"
 
 export default function Home() {
     const dispatch = useNotification()
-    const { chainId } = useMoralis
+    const { chainId, account } = useMoralis
     const chainString = chainId ? parseInt(chainId).toString() : "31337"
     const marketplaceAddress = networkMapping[chainString]["NftMarketplace"][0]
+    const [proceeds, setProceeds] = useState("0")
 
     const { runContractFunction } = useWeb3Contract()
 
@@ -65,6 +65,32 @@ export default function Home() {
             title: "NFT Listed",
             position: "topR",
         })
+    }
+
+    const handleWithdrawSuccess = async (tx) => {
+        await tx.wait(1)
+        dispatch({
+            type: "success",
+            message: "Withdrawing proceeds",
+            position: "topR",
+        })
+    }
+
+    async function setupUI() {
+        const returnedProceeds = await runContractFunction({
+            params: {
+                abi: nftMarketplaceAbi,
+                contractAddress: marketplaceAddress,
+                functionName: "getProceeds",
+                params: {
+                    seller: account,
+                },
+            },
+            onError: (e) => console.log(e),
+        })
+        if (returnedProceeds) {
+            setProceeds(returnedProceeds.toString())
+        }
     }
 
     return (
