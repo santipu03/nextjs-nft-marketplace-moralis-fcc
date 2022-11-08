@@ -4,7 +4,7 @@ import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import nftAbi from "../constants/BasicNft.json"
 import Image from "next/image"
 import { ethers } from "ethers"
-import { Card } from "web3uikit"
+import { Card, useNotification } from "web3uikit"
 import UpdateListingModal from "./UpdateListingModal"
 
 const truncateString = (fullStr, strLength) => {
@@ -24,6 +24,7 @@ const truncateString = (fullStr, strLength) => {
 
 export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress, seller }) {
     const { isWeb3Enabled, account } = useMoralis
+    const dispatch = useNotification()
 
     const [imageURI, setImageURI] = useState("")
     const [tokenName, setTokenName] = useState("")
@@ -40,6 +41,16 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
         },
     })
 
+    const { runContractFunction: buyItem } = useWeb3Contract({
+        abi: nftMarketplaceAbi,
+        contractAddress: marketplaceAddress,
+        functionName: "buyItem",
+        msgValue: price,
+        params: {
+            nftAddress: nftAddress,
+            tokenId: tokenId,
+        },
+    })
     async function updateUI() {
         const tokenURI = await getTokenURI()
         if (tokenURI) {
@@ -61,7 +72,22 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     }, [isWeb3Enabled])
 
     const handleCardClick = () => {
-        isOwnedByUser ? setShowModal(true) : console.log("Lets buy")
+        isOwnedByUser
+            ? setShowModal(true)
+            : buyItem({
+                  onError: (e) => console.log(e),
+                  onSuccess: handleBuyItemSuccess(),
+              })
+    }
+
+    const handleBuyItemSuccess = async (tx) => {
+        await tx.wait(1)
+        dispatch({
+            type: "success",
+            message: "Item bought!",
+            title: "Item Bought",
+            position: "topR",
+        })
     }
 
     const isOwnedByUser = seller === account || seller === undefined
