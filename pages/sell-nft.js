@@ -1,15 +1,15 @@
 import styles from "../styles/Home.module.css"
-import { Form, useNotification } from "web3uikit"
+import { Button, Form, useNotification } from "web3uikit"
 import { ethers } from "ethers"
 import nftAbi from "../constants/BasicNft.json"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import networkMapping from "../constants/networkMapping.json"
 import { useMoralis, useWeb3Contract } from "react-moralis"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Home() {
     const dispatch = useNotification()
-    const { chainId, account } = useMoralis
+    const { chainId, account, isWeb3Enabled } = useMoralis
     const chainString = chainId ? parseInt(chainId).toString() : "31337"
     const marketplaceAddress = networkMapping[chainString]["NftMarketplace"][0]
     const [proceeds, setProceeds] = useState("0")
@@ -93,6 +93,12 @@ export default function Home() {
         }
     }
 
+    useEffect(() => {
+        if (isWeb3Enabled) {
+            setupUI()
+        }
+    }, [proceeds, account, isWeb3Enabled, chainId])
+
     return (
         <div className={styles.container}>
             <Form
@@ -122,6 +128,27 @@ export default function Home() {
                 title="Sell your NFT!"
                 id="Main Form"
             />
+            <div>Withdraw {proceeds} proceeds</div>
+            {proceeds != "0" ? (
+                <Button
+                    onClick={() => {
+                        runContractFunction({
+                            params: {
+                                abi: nftMarketplaceAbi,
+                                contractAddress: marketplaceAddress,
+                                functionName: "withdrawProceeds",
+                                params: {},
+                            },
+                            onError: (e) => console.log(e),
+                            onSuccess: handleWithdrawSuccess,
+                        })
+                    }}
+                    text="Withdraw"
+                    type="button"
+                />
+            ) : (
+                <div>No proceeds detected</div>
+            )}
         </div>
     )
 }
