@@ -76,7 +76,7 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
             ? setShowModal(true)
             : buyItem({
                   onError: (e) => console.log(e),
-                  onSuccess: handleBuyItemSuccess(),
+                  onSuccess: handleBuyItemSuccess,
               })
     }
 

@@ -33,7 +33,7 @@ export default function Home() {
         }
         await runContractFunction({
             params: approveOptions,
-            onSuccess: handleApproveSuccess(nftAddress, tokenId, price),
+            onSuccess: () => handleApproveSuccess(nftAddress, tokenId, price),
             onError: (e) => console.log(e),
         })
     }
@@ -52,12 +52,13 @@ export default function Home() {
         }
         await runContractFunction({
             params: listOptions,
-            onSuccess: handleListSuccess(),
+            onSuccess: handleListSuccess,
             onError: (e) => console.log(e),
         })
     }
 
-    async function handleListSuccess() {
+    async function handleListSuccess(tx) {
+        await tx.wait(1)
         dispatch({
             type: "success",
             message: "NFT listed!",
@@ -95,7 +96,6 @@ export default function Home() {
                 title="Sell your NFT!"
                 id="Main Form"
             />
-            Hi from sell!
         </div>
     )
 }
