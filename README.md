@@ -7,8 +7,8 @@ Sell Page:
  - You can list an NFT in the marketplace
     
 
-IMPORTANT:
- - This repo doesn't actually work bc it's based on a Moralis server that is no longer working
+## IMPORTANT
+ - This repo doesn't actually work bc it's based on a Moralis server that is no longer available for free users
 
 
 
