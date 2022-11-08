@@ -1,16 +1,18 @@
 import Head from "next/head"
 import Image from "next/image"
 import styles from "../styles/Home.module.css"
-import { Form } from "web3uikit"
+import { Form, useNotification } from "web3uikit"
 import { ethers } from "ethers"
 import nftAbi from "../constants/BasicNft.json"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
+import networkMapping from "../constants/networkMapping.json"
 import { useMoralis, useWeb3Contract } from "react-moralis"
 
 export default function Home() {
+    const dispatch = useNotification()
     const { chainId } = useMoralis
     const chainString = chainId ? parseInt(chainId).toString() : "31337"
-    const marketplaceAddress = networkMapping[chainId]["NftMarketplace"][0]
+    const marketplaceAddress = networkMapping[chainString]["NftMarketplace"][0]
 
     const { runContractFunction } = useWeb3Contract()
 
@@ -36,12 +38,33 @@ export default function Home() {
         })
     }
 
-    // async function handleApproveSuccess(nftAddress, tokenId, price) {
-    //     console.log("Time to list an item!")
-    //     const listOptions = {
-    //         abi: nftMarketplaceAbi,
-    //     }
-    // }
+    async function handleApproveSuccess(nftAddress, tokenId, price) {
+        console.log("Time to list an item!")
+        const listOptions = {
+            abi: nftMarketplaceAbi,
+            contractAddress: marketplaceAddress,
+            functionName: "listItem",
+            params: {
+                nftAddress: nftAddress,
+                tokenId: tokenId,
+                price: price,
+            },
+        }
+        await runContractFunction({
+            params: listOptions,
+            onSuccess: handleListSuccess(),
+            onError: (e) => console.log(e),
+        })
+    }
+
+    async function handleListSuccess() {
+        dispatch({
+            type: "success",
+            message: "NFT listed!",
+            title: "NFT Listed",
+            position: "topR",
+        })
+    }
 
     return (
         <div className={styles.container}>
